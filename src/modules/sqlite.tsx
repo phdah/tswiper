@@ -34,6 +34,8 @@ class SQLiteService {
             });
             console.log('Database opened successfully:', this.dbConfig.name);
             dbService.initializeTable();
+            this.addItems('10');
+            this.addItems('20');
         } catch (error) {
             console.error('Error opening database:', error);
         }
