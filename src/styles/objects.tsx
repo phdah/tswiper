@@ -15,6 +15,15 @@ const objectStyles = StyleSheet.create({
         fontWeight: 'bold',
         marginLeft: 10,
     },
+    input: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        width: '80%',
+        color: 'black',
+        paddingHorizontal: 10,
+        marginBottom: 10,
+    },
 });
 
 export default objectStyles;

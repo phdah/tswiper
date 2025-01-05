@@ -5,13 +5,21 @@ SQLite.enablePromise(true);
 class SQLiteService {
     db: SQLite.SQLiteDatabase | null = null;
 
+    dbConfig = {
+        name: 'tswiper_base.db',
+        table: {name: 'ammounts', column: 'ammount'},
+    };
     sqlQueries = {
-        createTable: `create table if not exists items (
-                        id integer primary key autoincrement,
-                        name text)`,
-        insertItem: `insert into items (name) values (?)`,
-        getItem: `select name from items order by id desc`,
-        deleteItem: `delete from items where name == ?`,
+        dropTable: `
+            drop table if exists ${this.dbConfig.table.name}`,
+        createTable: `
+            create table ${this.dbConfig.table.name} (
+                id integer primary key autoincrement,
+                ${this.dbConfig.table.column} integer not null
+            ) strict`,
+        insertItem: `insert into ${this.dbConfig.table.name} (${this.dbConfig.table.column}) values (?)`,
+        getItem: `select ${this.dbConfig.table.column} from ${this.dbConfig.table.name} order by id desc`,
+        deleteItem: `delete from ${this.dbConfig.table.name} where ${this.dbConfig.table.column} == ?`,
     };
 
     constructor() {
@@ -21,10 +29,10 @@ class SQLiteService {
     async initializeDatabase() {
         try {
             this.db = await SQLite.openDatabase({
-                name: 'app_database.db',
+                name: this.dbConfig.name,
                 location: 'default',
             });
-            console.log('Database opened successfully');
+            console.log('Database opened successfully:', this.dbConfig.name);
             dbService.initializeTable();
         } catch (error) {
             console.error('Error opening database:', error);
@@ -38,8 +46,12 @@ class SQLiteService {
             return;
         }
         try {
+            await this.db.executeSql(this.sqlQueries.dropTable);
             await this.db.executeSql(this.sqlQueries.createTable);
-            console.log('Table created successfully');
+            console.log(
+                'Table created successfully:',
+                this.dbConfig.table.name,
+            );
         } catch (error) {
             console.error('Error creating table:', error);
         }
@@ -58,7 +70,7 @@ class SQLiteService {
         }
     }
 
-    async getItems(): Promise<Array<{name: string}>> {
+    async getItems(): Promise<Array<{ammount: number}>> {
         if (!this.db) {
             console.error('getItems: Database not initialized');
             return [];

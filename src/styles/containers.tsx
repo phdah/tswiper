@@ -23,6 +23,7 @@ const containerStyles = StyleSheet.create({
         backgroundColor: 'white',
         borderWidth: 1,
     },
+    inputContainer: {padding: 10, alignItems: 'center'},
 });
 
 export default containerStyles;
