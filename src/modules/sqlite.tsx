@@ -33,9 +33,9 @@ class SQLiteService {
                 location: 'default',
             });
             console.log('Database opened successfully:', this.dbConfig.name);
-            dbService.initializeTable();
-            this.addItems('10');
-            this.addItems('20');
+            await dbService.initializeTable();
+            this.addItems(10);
+            this.addItems(20);
         } catch (error) {
             console.error('Error opening database:', error);
         }
@@ -59,7 +59,7 @@ class SQLiteService {
         }
     }
 
-    addItems(item: string) {
+    addItems(item: number) {
         if (!this.db) {
             console.error('Database not initialized');
             return;
@@ -83,6 +83,8 @@ class SQLiteService {
                 [],
             );
             const rows = results[0].rows.raw();
+
+            console.log('Rows fetched:', rows);
             return rows;
         } catch (error) {
             console.error('Error fetching items:', error);
