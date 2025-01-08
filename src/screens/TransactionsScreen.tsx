@@ -4,9 +4,14 @@ import {Button, StyleSheet, Text, View} from 'react-native';
 import dbService from '../modules/sqlite';
 
 // demo purposes only
-type Card = number;
+// type Card = number;
 
 type SwipeDirection = 'left' | 'right' | 'top' | 'bottom' | 'general';
+
+interface Card {
+    id: number;
+    amount: number;
+}
 
 interface TransactionsScreenState {
     cards: Card[];
@@ -34,19 +39,36 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
 
     async componentDidMount() {
         const items = await this.db.getItems();
-        this.setState({cards: items.map(item => item.ammount)});
+        console.log('Items got:', items);
+        this.setState({
+            cards: items.map(item => ({id: item.id, amount: item.amount})),
+        });
     }
 
-    renderCard = (card: Card) => {
+    renderCard = (card?: Card) => {
+        if (!card) {
+            return (
+                <View style={styles.card}>
+                    <Text style={styles.text}>No cards available</Text>
+                </View>
+            );
+        }
+        console.log('Render card:', card);
         return (
             <View style={styles.card}>
-                <Text style={styles.text}>Ammount: {card}</Text>
+                <Text style={styles.text}>Amount: {card.amount}</Text>
             </View>
         );
     };
 
-    onSwiped = (type: SwipeDirection) => {
+    onSwiped = (id: number, type: SwipeDirection) => {
+        console.log('Render card index:', this.state.cardIndex);
         console.log(`on swiped ${type}`);
+        if (type == 'left') {
+            this.db.updateItems(id, 'GROUP');
+        } else if (type == 'right') {
+            this.db.updateItems(id, 'PRIVATE');
+        }
     };
 
     onSwipedAllCards = () => {
@@ -66,14 +88,30 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
                     ref={(swiper: Swiper<Card>) => {
                         this.swiper = swiper;
                     }}
-                    onSwiped={() => this.onSwiped('general')}
-                    onSwipedLeft={() => this.onSwiped('left')}
-                    onSwipedRight={() => this.onSwiped('right')}
-                    onSwipedTop={() => this.onSwiped('top')}
-                    onSwipedBottom={() => this.onSwiped('bottom')}
+                    onSwiped={() =>
+                        this.onSwiped(this.state.cardIndex, 'general')
+                    }
+                    onSwipedLeft={() =>
+                        this.onSwiped(this.state.cardIndex, 'left')
+                    }
+                    onSwipedRight={() =>
+                        this.onSwiped(this.state.cardIndex, 'right')
+                    }
+                    onSwipedTop={() =>
+                        this.onSwiped(this.state.cardIndex, 'top')
+                    }
+                    onSwipedBottom={() =>
+                        this.onSwiped(this.state.cardIndex, 'bottom')
+                    }
                     onTapCard={this.swipeLeft}
-                    cards={this.state.cards}
-                    cardIndex={this.state.cardIndex}
+                    // cards={this.state.cards}
+                    cards={
+                        this.state.cards.length > 0
+                            ? this.state.cards
+                            : [{id: 0, amount: 0}]
+                    }
+                    // renderCard={this.renderCard}
+                    cardIndex={0}
                     cardVerticalMargin={80}
                     renderCard={this.renderCard}
                     onSwipedAll={this.onSwipedAllCards}
