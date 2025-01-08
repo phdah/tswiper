@@ -3,9 +3,6 @@ import Swiper from 'react-native-deck-swiper';
 import {Button, StyleSheet, Text, View} from 'react-native';
 import dbService from '../modules/sqlite';
 
-// demo purposes only
-// type Card = number;
-
 type SwipeDirection = 'left' | 'right' | 'top' | 'bottom' | 'general';
 
 interface Card {
@@ -46,7 +43,7 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
     }
 
     renderCard = (card?: Card) => {
-        if (!card) {
+        if (!card || card.id == 0) {
             return (
                 <View style={styles.card}>
                     <Text style={styles.text}>No cards available</Text>
@@ -61,13 +58,18 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
         );
     };
 
-    onSwiped = (id: number, type: SwipeDirection) => {
+    onSwiped = (type: SwipeDirection) => {
+        this.setState({cardIndex: this.state.cardIndex + 1});
+        const cardId =
+            this.state.cards.length > 0
+                ? this.state.cards[this.state.cardIndex].id
+                : 0;
         console.log('Render card index:', this.state.cardIndex);
         console.log(`on swiped ${type}`);
-        if (type == 'left') {
-            this.db.updateItems(id, 'GROUP');
-        } else if (type == 'right') {
-            this.db.updateItems(id, 'PRIVATE');
+        if (type == 'left' && cardId != 0) {
+            this.db.updateItems(cardId, 'GROUP');
+        } else if (type == 'right' && cardId != 0) {
+            this.db.updateItems(cardId, 'PRIVATE');
         }
     };
 
@@ -88,21 +90,15 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
                     ref={(swiper: Swiper<Card>) => {
                         this.swiper = swiper;
                     }}
-                    onSwiped={() =>
-                        this.onSwiped(this.state.cardIndex, 'general')
-                    }
-                    onSwipedLeft={() =>
-                        this.onSwiped(this.state.cardIndex, 'left')
-                    }
-                    onSwipedRight={() =>
-                        this.onSwiped(this.state.cardIndex, 'right')
-                    }
-                    onSwipedTop={() =>
-                        this.onSwiped(this.state.cardIndex, 'top')
-                    }
-                    onSwipedBottom={() =>
-                        this.onSwiped(this.state.cardIndex, 'bottom')
-                    }
+                    // onSwiped={() =>
+                    //     this.onSwiped('general')
+                    // }
+                    onSwipedLeft={() => this.onSwiped('left')}
+                    onSwipedRight={() => this.onSwiped('right')}
+                    // onSwipedTop={() =>
+                    //     this.onSwiped('top')
+                    // }
+                    onSwipedBottom={() => this.onSwiped('bottom')}
                     onTapCard={this.swipeLeft}
                     // cards={this.state.cards}
                     cards={
@@ -111,7 +107,7 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
                             : [{id: 0, amount: 0}]
                     }
                     // renderCard={this.renderCard}
-                    cardIndex={0}
+                    // cardIndex={0}
                     cardVerticalMargin={80}
                     renderCard={this.renderCard}
                     onSwipedAll={this.onSwipedAllCards}
