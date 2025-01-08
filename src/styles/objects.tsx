@@ -24,6 +24,20 @@ const objectStyles = StyleSheet.create({
         paddingHorizontal: 10,
         marginBottom: 10,
     },
+    swipeActionLeft: {
+        backgroundColor: 'green',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '50%',
+        borderRadius: 10,
+    },
+    swipeActionRight: {
+        backgroundColor: 'red',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '50%',
+        borderRadius: 10,
+    },
 });
 
 export default objectStyles;

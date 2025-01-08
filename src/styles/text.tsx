@@ -11,6 +11,10 @@ const textStyles = StyleSheet.create({
         fontSize: 24,
         color: 'black',
     },
+    actionText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
 });
 
 export default textStyles;
