@@ -7,7 +7,11 @@ class SQLiteService {
 
     dbConfig = {
         name: 'tswiper_base.db',
-        table: {name: 'ammounts', column: 'ammount'},
+        table: {
+            name: 'amounts',
+            columns: {id: 'id', value: 'amount', state: 'state'},
+        },
+        states: {UNSET: 'UNSET', GROUP: 'GROUP', PRIVATE: 'PRIVATE'},
     };
     sqlQueries = {
         dropTable: `
@@ -15,11 +19,13 @@ class SQLiteService {
         createTable: `
             create table ${this.dbConfig.table.name} (
                 id integer primary key autoincrement,
-                ${this.dbConfig.table.column} integer not null
+                ${this.dbConfig.table.columns.value} integer not null,
+                ${this.dbConfig.table.columns.state} text not null
             ) strict`,
-        insertItem: `insert into ${this.dbConfig.table.name} (${this.dbConfig.table.column}) values (?)`,
-        getItem: `select ${this.dbConfig.table.column} from ${this.dbConfig.table.name} order by id desc`,
-        deleteItem: `delete from ${this.dbConfig.table.name} where ${this.dbConfig.table.column} == ?`,
+        insertItem: `insert into ${this.dbConfig.table.name} (${this.dbConfig.table.columns.value}, ${this.dbConfig.table.columns.state}) values (?, ?)`,
+        getItem: `select ${this.dbConfig.table.columns.id}, ${this.dbConfig.table.columns.value} from ${this.dbConfig.table.name} where ${this.dbConfig.table.columns.state} == '${this.dbConfig.states.UNSET}' order by id asc`,
+        updateItem: `update ${this.dbConfig.table.name} set ${this.dbConfig.table.columns.state} = ? where ${this.dbConfig.table.columns.id} == ?`,
+        deleteItem: `delete from ${this.dbConfig.table.name} where ${this.dbConfig.table.columns.value} == ?`,
     };
 
     constructor() {
@@ -34,8 +40,9 @@ class SQLiteService {
             });
             console.log('Database opened successfully:', this.dbConfig.name);
             await dbService.initializeTable();
-            this.addItems(10);
-            this.addItems(20);
+            this.addItems(10, this.dbConfig.states.UNSET);
+            this.addItems(20, this.dbConfig.states.UNSET);
+            this.addItems(100, this.dbConfig.states.PRIVATE);
         } catch (error) {
             console.error('Error opening database:', error);
         }
@@ -59,29 +66,28 @@ class SQLiteService {
         }
     }
 
-    addItems(item: number) {
+    addItems(item: number, state: string) {
         if (!this.db) {
             console.error('Database not initialized');
             return;
         }
         try {
-            this.db.executeSql(this.sqlQueries.insertItem, [item]);
+            this.db.executeSql(this.sqlQueries.insertItem, [item, state]);
             console.log('Item added successfully:', item);
         } catch (error) {
             console.error('Error adding item:', error);
         }
     }
 
-    async getItems(): Promise<Array<{ammount: number}>> {
+    async getItems(): Promise<Array<{id: number; amount: number}>> {
         if (!this.db) {
             console.error('getItems: Database not initialized');
             return [];
         }
         try {
-            const results = await this.db.executeSql(
-                this.sqlQueries.getItem,
-                [],
-            );
+            const results = await this.db.executeSql(this.sqlQueries.getItem, [
+                this.dbConfig.states.UNSET,
+            ]);
             const rows = results[0].rows.raw();
 
             console.log('Rows fetched:', rows);
@@ -89,6 +95,24 @@ class SQLiteService {
         } catch (error) {
             console.error('Error fetching items:', error);
             return [];
+        }
+    }
+
+    async updateItems(itemID: number, state: string) {
+        if (!this.db) {
+            console.error('updateItems: Database not initialized');
+            return;
+        }
+        try {
+            this.db.executeSql(this.sqlQueries.updateItem, [state, itemID]);
+            console.log(
+                'Item updated successfully, ID:',
+                itemID,
+                ' With state:',
+                state,
+            );
+        } catch (error) {
+            console.error('Error updating item:', error);
         }
     }
 
