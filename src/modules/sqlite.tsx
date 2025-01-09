@@ -23,7 +23,7 @@ class SQLiteService {
                 ${this.dbConfig.table.columns.state} text not null
             ) strict`,
         insertItem: `insert into ${this.dbConfig.table.name} (${this.dbConfig.table.columns.value}, ${this.dbConfig.table.columns.state}) values (?, ?)`,
-        getItem: `select ${this.dbConfig.table.columns.id}, ${this.dbConfig.table.columns.value} from ${this.dbConfig.table.name} where ${this.dbConfig.table.columns.state} == '${this.dbConfig.states.UNSET}' order by id asc`,
+        getItem: `select ${this.dbConfig.table.columns.id}, ${this.dbConfig.table.columns.value} from ${this.dbConfig.table.name} where ${this.dbConfig.table.columns.state} == ? order by id asc`,
         updateItem: `update ${this.dbConfig.table.name} set ${this.dbConfig.table.columns.state} = ? where ${this.dbConfig.table.columns.id} == ?`,
         deleteItem: `delete from ${this.dbConfig.table.name} where ${this.dbConfig.table.columns.value} == ?`,
     };
@@ -79,7 +79,7 @@ class SQLiteService {
         }
     }
 
-    async getItems(): Promise<Array<{id: number; amount: number}>> {
+    async getAllItems(): Promise<Array<{id: number; amount: number}>> {
         if (!this.db) {
             console.error('getItems: Database not initialized');
             return [];
@@ -87,6 +87,44 @@ class SQLiteService {
         try {
             const results = await this.db.executeSql(this.sqlQueries.getItem, [
                 this.dbConfig.states.UNSET,
+            ]);
+            const rows = results[0].rows.raw();
+
+            console.log('Rows fetched:', rows);
+            return rows;
+        } catch (error) {
+            console.error('Error fetching items:', error);
+            return [];
+        }
+    }
+
+    async getPrivateItems(): Promise<Array<{id: number; amount: number}>> {
+        if (!this.db) {
+            console.error('getItems: Database not initialized');
+            return [];
+        }
+        try {
+            const results = await this.db.executeSql(this.sqlQueries.getItem, [
+                this.dbConfig.states.PRIVATE,
+            ]);
+            const rows = results[0].rows.raw();
+
+            console.log('Rows fetched:', rows);
+            return rows;
+        } catch (error) {
+            console.error('Error fetching items:', error);
+            return [];
+        }
+    }
+
+    async getGroupItems(): Promise<Array<{id: number; amount: number}>> {
+        if (!this.db) {
+            console.error('getItems: Database not initialized');
+            return [];
+        }
+        try {
+            const results = await this.db.executeSql(this.sqlQueries.getItem, [
+                this.dbConfig.states.GROUP,
             ]);
             const rows = results[0].rows.raw();
 

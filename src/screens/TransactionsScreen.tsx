@@ -33,10 +33,10 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
 
     // Get amounts and set to cards
     db = dbService;
-    items = this.db.getItems();
+    items = this.db.getAllItems();
 
     async componentDidMount() {
-        const items = await this.db.getItems();
+        const items = await this.db.getAllItems();
         console.log('Items got:', items);
         this.setState({
             cards: items.map(item => ({id: item.id, amount: item.amount})),
