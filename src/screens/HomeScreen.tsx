@@ -11,6 +11,14 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
                 title="Go to transactions"
                 onPress={() => navigation.navigate('Transactions')}
             />
+            <Button
+                title="Go to private transactions"
+                onPress={() => navigation.navigate('PrivateTransactions')}
+            />
+            <Button
+                title="Go to group transactions"
+                onPress={() => navigation.navigate('GroupTransactions')}
+            />
         </View>
     );
 };
