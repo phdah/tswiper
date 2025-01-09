@@ -45,6 +45,8 @@ class SQLiteService {
             this.addItems(10, this.dbConfig.states.UNSET);
             this.addItems(20, this.dbConfig.states.UNSET);
             this.addItems(100, this.dbConfig.states.PRIVATE);
+            this.addItems(200, this.dbConfig.states.PRIVATE);
+            this.addItems(300, this.dbConfig.states.PRIVATE);
         } catch (error) {
             console.error('Error opening database:', error);
         }
