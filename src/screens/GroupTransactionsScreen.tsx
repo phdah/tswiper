@@ -7,34 +7,32 @@ const GroupTransactionsScreen = () => {
     const [sum, setSum] = useState<number>(0);
     const [items, setItems] = useState<{id: number; value: number}[]>([]);
 
-    useEffect(
-        () => {
-            const fetchSum = async () => {
-                try {
-                    const sumValue = await db.getGroupSumOfItems();
-                    setSum(sumValue);
-                } catch (error) {
-                    console.log('Error fetching sum:', error);
-                }
-            };
-            const fetchItems = async () => {
-                try {
-                    const itemList = await db.getGroupItems();
-                    setItems(
-                        itemList.map(item => ({
-                            id: item.id,
-                            value: item.amount,
-                        })),
-                    );
-                } catch (error) {
-                    console.log('Error fetching sum:', error);
-                }
-            };
-            fetchItems();
-            fetchSum();
-        },
-        [items], // event hook on state changes
-    );
+    const fetchSum = async () => {
+        try {
+            const sumValue = await db.getGroupSumOfItems();
+            setSum(sumValue);
+        } catch (error) {
+            console.log('Error fetching sum:', error);
+        }
+    };
+    const fetchItems = async () => {
+        try {
+            const itemList = await db.getGroupItems();
+            setItems(
+                itemList.map(item => ({
+                    id: item.id,
+                    value: item.amount,
+                })),
+            );
+        } catch (error) {
+            console.log('Error fetching sum:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchItems();
+        fetchSum();
+    }, []);
 
     const handlePress = (item: {id: number; value: number}) => {
         console.log(
@@ -44,7 +42,8 @@ const GroupTransactionsScreen = () => {
             item.value,
         );
         db.updateItems(item.id, db.dbConfig.states.UNSET);
-        setItems(prevItems => prevItems.filter(item => item.id !== item.id));
+        fetchItems();
+        fetchSum();
     };
 
     const renderItems = ({item}: {item: {id: number; value: number}}) => {
