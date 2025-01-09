@@ -1,32 +1,51 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-    Button,
     FlatList,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
-// import dbService from '../modules/sqlite';
+import dbService from '../modules/sqlite';
 
 const PrivateTransactionsScreen = () => {
-    // Get amounts and set to cards
-    // db = dbService;
-    // items = this.db.getPrivateItems();
-    const initialItems = [
-        {id: 1, value: 100},
-        {id: 2, value: 50},
-        {id: 3, value: 75},
-    ];
+    const db = dbService;
+    const [sum, setSum] = useState<number>(0);
+    const [items, setItems] = useState<{ id: number; value: number }[]>([]);
+
+    useEffect(() => {
+        const fetchSum = async () => {
+            try {
+                const sumValue = await db.getPrivateSumOfItems();
+                setSum(sumValue);
+            } catch (error) {
+                console.log('Error fetching sum:', error);
+            }
+        };
+        const fetchItems = async () => {
+            try {
+                const itemList = await db.getPrivateItems();
+                setItems(itemList.map(item => ({ id: item.id, value: item.amount })));
+            } catch (error) {
+                console.log('Error fetching sum:', error);
+            }
+        };
+        fetchItems();
+        fetchSum();
+    }, []);
+
+    const handlePress = (value: number) => {
+        console.log('Button press on private:', value);
+    };
 
     const renderItems = ({item}: {item: {id: number; value: number}}) => {
         return (
             <View style={styles.listItem}>
-                <Text style={styles.itemText}>Value: {item.value}</Text>
+                <Text style={styles.itemText}>{item.value}</Text>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => console.log('Button press on private:', item.value)}>
-                    <Text style={styles.buttonText}>LOG</Text>
+                    onPress={() => handlePress(item.value)}>
+                    <Text style={styles.buttonText}>UNSET</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -35,11 +54,11 @@ const PrivateTransactionsScreen = () => {
     return (
         <View style={styles.container}>
             <View style={styles.sumContainer}>
-                <Text style={styles.sumText}>Value: 1000</Text>
+                <Text style={styles.sumText}>Value: {sum}</Text>
             </View>
 
             <FlatList
-                data={initialItems}
+                data={items}
                 renderItem={renderItems}
                 keyExtractor={item => item.id.toString()}
             />
