@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+// https://github.com/webraptor/react-native-deck-swiper
 import Swiper from 'react-native-deck-swiper';
 import {Button, StyleSheet, Text, View} from 'react-native';
 import dbService from '../modules/sqlite';
@@ -42,15 +43,16 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
         });
     }
 
+    getCards = () => {
+        return this.state.cards.length > 0 ? this.state.cards : [];
+    };
+
     renderCard = (card?: Card) => {
-        if (!card || card.id == 0) {
-            return (
-                <View style={styles.card}>
-                    <Text style={styles.text}>No cards available</Text>
-                </View>
-            );
+        if (!card) {
+            return <Text style={styles.text}>No more amounts</Text>;
         }
         console.log('Render card:', card);
+        console.log('All cards:', this.state.cards)
         return (
             <View style={styles.card}>
                 <Text style={styles.text}>Amount: {card.amount}</Text>
@@ -59,13 +61,17 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
     };
 
     onSwiped = (type: SwipeDirection) => {
+        console.log(`on swiped ${type}`);
+    };
+
+    onSwipedAction = (type: SwipeDirection) => {
         this.setState({cardIndex: this.state.cardIndex + 1});
         const cardId =
             this.state.cards.length > 0
                 ? this.state.cards[this.state.cardIndex].id
                 : 0;
         console.log('Render card index:', this.state.cardIndex);
-        console.log(`on swiped ${type}`);
+        this.onSwiped(type);
         if (type == 'left' && cardId != 0) {
             this.db.updateItems(cardId, 'GROUP');
         } else if (type == 'right' && cardId != 0) {
@@ -79,8 +85,10 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
         });
     };
 
-    swipeLeft = () => {
-        this.swiper?.swipeLeft();
+    // TODO: Fix the swipe back button
+    swipeBackButton = () => {
+        // this.swiper?.swipeBack();
+        // this.setState({cardIndex: this.state.cardIndex - 1});
     };
 
     render() {
@@ -90,26 +98,13 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
                     ref={(swiper: Swiper<Card>) => {
                         this.swiper = swiper;
                     }}
-                    // onSwiped={() =>
-                    //     this.onSwiped('general')
-                    // }
-                    onSwipedLeft={() => this.onSwiped('left')}
-                    onSwipedRight={() => this.onSwiped('right')}
-                    // onSwipedTop={() =>
-                    //     this.onSwiped('top')
-                    // }
-                    onSwipedBottom={() => this.onSwiped('bottom')}
-                    onTapCard={this.swipeLeft}
-                    // cards={this.state.cards}
-                    cards={
-                        this.state.cards.length > 0
-                            ? this.state.cards
-                            : [{id: 0, amount: 0}]
-                    }
-                    // renderCard={this.renderCard}
-                    // cardIndex={0}
-                    cardVerticalMargin={80}
+                    onSwiped={() => this.onSwiped('general')}
+                    onSwipedLeft={() => this.onSwipedAction('left')}
+                    onSwipedRight={() => this.onSwipedAction('right')}
+                    onSwipedBottom={() => this.onSwipedAction('bottom')}
+                    cards={this.getCards()}
                     renderCard={this.renderCard}
+                    cardVerticalMargin={80}
                     onSwipedAll={this.onSwipedAllCards}
                     stackSize={3}
                     stackSeparation={15}
@@ -187,10 +182,9 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
                     animateCardOpacity
                     swipeBackCard
                 />
-                <Button
-                    onPress={() => this.swiper?.swipeBack()}
-                    title="Swipe Back"
-                />
+                {this.state.cards.length > 0 && (
+                    <Button onPress={this.swipeBackButton} title="Swipe Back" />
+                )}
             </View>
         );
     }
