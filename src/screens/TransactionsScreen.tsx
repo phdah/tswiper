@@ -73,9 +73,9 @@ class TransactionsScreen extends Component<{}, TransactionsScreenState> {
         console.log('Render card index:', this.state.cardIndex);
         this.onSwiped(type);
         if (type == 'left' && cardId != 0) {
-            this.db.updateItems(cardId, 'GROUP');
+            this.db.updateItems(cardId, this.db.dbConfig.states.GROUP);
         } else if (type == 'right' && cardId != 0) {
-            this.db.updateItems(cardId, 'PRIVATE');
+            this.db.updateItems(cardId, this.db.dbConfig.states.PRIVATE);
         }
     };
 
