@@ -23,11 +23,29 @@ class SQLiteService {
                 ${this.dbConfig.table.columns.value} integer not null,
                 ${this.dbConfig.table.columns.state} text not null
             ) strict`,
-        insertItem: `insert into ${this.dbConfig.table.name} (${this.dbConfig.table.columns.value}, ${this.dbConfig.table.columns.state}) values (?, ?)`,
-        getItem: `select ${this.dbConfig.table.columns.id}, ${this.dbConfig.table.columns.value} from ${this.dbConfig.table.name} where ${this.dbConfig.table.columns.state} == ? order by id asc`,
-        getSumOfItem: `select sum(${this.dbConfig.table.columns.value}) as ${this.dbConfig.table.alias.sumOf} from ${this.dbConfig.table.name} where ${this.dbConfig.table.columns.state} == ? order by id asc`,
-        updateItem: `update ${this.dbConfig.table.name} set ${this.dbConfig.table.columns.state} = ? where ${this.dbConfig.table.columns.id} == ?`,
-        deleteItem: `delete from ${this.dbConfig.table.name} where ${this.dbConfig.table.columns.value} == ?`,
+        insertItem: `
+            insert into ${this.dbConfig.table.name}
+            (${this.dbConfig.table.columns.value}, ${this.dbConfig.table.columns.state}) values (?, ?)`,
+        getItem: `
+            select
+                ${this.dbConfig.table.columns.id},
+                ${this.dbConfig.table.columns.value}
+            from ${this.dbConfig.table.name}
+                where ${this.dbConfig.table.columns.state} == ?
+            order by id asc`,
+        getSumOfItem: `
+            select
+                sum(${this.dbConfig.table.columns.value}) as ${this.dbConfig.table.alias.sumOf}
+            from ${this.dbConfig.table.name}
+                where ${this.dbConfig.table.columns.state} == ?
+            order by id asc`,
+        updateItem: `
+            update ${this.dbConfig.table.name}
+            set ${this.dbConfig.table.columns.state} = ?
+            where ${this.dbConfig.table.columns.id} == ?`,
+        deleteItem: `
+            delete from ${this.dbConfig.table.name}
+            where ${this.dbConfig.table.columns.value} == ?`,
     };
 
     constructor() {
