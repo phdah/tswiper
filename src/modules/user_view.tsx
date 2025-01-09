@@ -1,7 +1,26 @@
 import React, {Component} from 'react';
 import {SafeAreaView, TextInput} from 'react-native';
-import containerStyles from '../styles/containers';
-import objectStyles from '../styles/objects';
+import {StyleSheet} from 'react-native';
+
+const objectStyles = StyleSheet.create({
+    input: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        width: '80%',
+        color: 'black',
+        paddingHorizontal: 10,
+        marginBottom: 10,
+    },
+});
+
+const containerStyles = StyleSheet.create({
+    container: {padding: 10, alignItems: 'center'},
+    deleteButtonContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});
 
 interface UserViewProp {
     onEnter: (value: string) => void;
@@ -30,7 +49,7 @@ class UserInputView extends Component<UserViewProp> {
 
     render() {
         return (
-            <SafeAreaView style={containerStyles.inputContainer}>
+            <SafeAreaView style={containerStyles.container}>
                 <TextInput
                     style={objectStyles.input}
                     placeholder="Type here..."
