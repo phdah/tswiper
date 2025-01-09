@@ -1,41 +1,50 @@
 import React, {useEffect, useState} from 'react';
-import {
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import dbService from '../modules/sqlite';
 
 const PrivateTransactionsScreen = () => {
     const db = dbService;
     const [sum, setSum] = useState<number>(0);
-    const [items, setItems] = useState<{ id: number; value: number }[]>([]);
+    const [items, setItems] = useState<{id: number; value: number}[]>([]);
 
-    useEffect(() => {
-        const fetchSum = async () => {
-            try {
-                const sumValue = await db.getPrivateSumOfItems();
-                setSum(sumValue);
-            } catch (error) {
-                console.log('Error fetching sum:', error);
-            }
-        };
-        const fetchItems = async () => {
-            try {
-                const itemList = await db.getPrivateItems();
-                setItems(itemList.map(item => ({ id: item.id, value: item.amount })));
-            } catch (error) {
-                console.log('Error fetching sum:', error);
-            }
-        };
-        fetchItems();
-        fetchSum();
-    }, []);
+    useEffect(
+        () => {
+            const fetchSum = async () => {
+                try {
+                    const sumValue = await db.getPrivateSumOfItems();
+                    setSum(sumValue);
+                } catch (error) {
+                    console.log('Error fetching sum:', error);
+                }
+            };
+            const fetchItems = async () => {
+                try {
+                    const itemList = await db.getPrivateItems();
+                    setItems(
+                        itemList.map(item => ({
+                            id: item.id,
+                            value: item.amount,
+                        })),
+                    );
+                } catch (error) {
+                    console.log('Error fetching sum:', error);
+                }
+            };
+            fetchItems();
+            fetchSum();
+        },
+        [items], // event hook on state changes
+    );
 
-    const handlePress = (value: number) => {
-        console.log('Button press on private:', value);
+    const handlePress = (item: {id: number; value: number}) => {
+        console.log(
+            'Unset button press on private id:',
+            item.id,
+            ' Value:',
+            item.value,
+        );
+        db.updateItems(item.id, db.dbConfig.states.UNSET);
+        setItems(prevItems => prevItems.filter(item => item.id !== item.id));
     };
 
     const renderItems = ({item}: {item: {id: number; value: number}}) => {
@@ -44,7 +53,7 @@ const PrivateTransactionsScreen = () => {
                 <Text style={styles.itemText}>{item.value}</Text>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => handlePress(item.value)}>
+                    onPress={() => handlePress(item)}>
                     <Text style={styles.buttonText}>UNSET</Text>
                 </TouchableOpacity>
             </View>
