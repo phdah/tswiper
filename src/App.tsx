@@ -3,8 +3,6 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 import HomeScreen from './screens/HomeScreen';
 import TransactionsScreen from './screens/TransactionsScreen';
-import PrivateTransactionsScreen from './screens/PrivateTransactionsScreen';
-import GroupTransactionsScreen from './screens/GroupTransactionsScreen';
 
 const TswiperApp = () => {
     const Stack = createNativeStackNavigator();
@@ -18,11 +16,13 @@ const TswiperApp = () => {
                 />
                 <Stack.Screen
                     name="PrivateTransactions"
-                    component={PrivateTransactionsScreen}
+                    component={TransactionsScreen}
+                    initialParams={{state: 'PRIVATE'}}
                 />
                 <Stack.Screen
                     name="GroupTransactions"
-                    component={GroupTransactionsScreen}
+                    component={TransactionsScreen}
+                    initialParams={{state: 'GROUP'}}
                 />
             </Stack.Navigator>
         </NavigationContainer>
